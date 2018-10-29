@@ -14,22 +14,8 @@ def home(request):
         'restapi/home.html'
     )
 
-def api_document_type(request, document_type):
-    if request.method == 'GET':
-        server = 'localhost'
-        port = 27017
-        database = "marvel_restapi"
 
-        collection = document_type
-
-        client = MongoClient(server, port)
-        db = client[database]
-        data = collection = db[collection]
-        results = data.find()
-        results = json.loads(results)
-        return results
-
-def api_documents(request, document_type, document_id):
+def api_documents(request, document_type):
     server = 'localhost'
     port = 27017
     database = "marvel_restapi"
@@ -38,7 +24,52 @@ def api_documents(request, document_type, document_id):
 
     client = MongoClient(server, port)
     db = client[database]
-    data = collection = db[collection]
+    data = db[collection]
+
+    if request.method == 'GET':
+        if request.body:
+            get_data = json.loads(request.body)
+            get_data = get_data["fields"]
+        else:
+            results = data.find()
+            results = [doc for doc in results]
+            results = dumps(results)
+            return JsonResponse(results, safe=False)
+
+        return api_get(data, 0, get_data)
+
+    if request.method == 'POST':
+        post_data = json.loads(request.body)
+        post_data = post_data["fields"]
+        return api_post(data, post_data)
+
+    if request.method.lower() == 'delete':
+        delete_ids = json.loads(request.body)
+        if delete_ids:
+            delete_ids = delete_ids["fields"]
+        else:
+            return JsonResponse({
+                "Message":
+                "Error: no body data to enter"
+            })
+        return api_delete(data, 0, delete_ids)
+
+    if request.method == 'PUT':
+        put_data = json.loads(request.body)
+        put_data = put_data["fields"]
+        return(api_put(data, put_data))
+
+
+def api_document_type(request, document_type, document_id):
+    server = 'localhost'
+    port = 27017
+    database = "marvel_restapi"
+
+    collection = document_type
+
+    client = MongoClient(server, port)
+    db = client[database]
+    data = db[collection]
 
     if request.method == 'GET':
         get_data = json.loads(request.body)
@@ -88,16 +119,16 @@ def api_post(data, post_data):
 def api_delete(data, document_id, delete_ids):
     if delete_ids:
         results_json = []
-        delete_keys = {}
         for item in delete_ids:
-            delete_keys.delete({
-                "id": item["id"]
-            })
-
-            results = data.deleteOne(
-                {"id": item["id"]}
+            try:
+                results = data.delete_one(
+                    {"id": item["id"]}
+                )
+            except:
+                print("deletion error")
+            results_json.append(
+                "Deletion count: " + str(results.deleted_count)
             )
-            results_json.append(results)
     else:
         results = data.deleteOne(
             {"id": document_id}

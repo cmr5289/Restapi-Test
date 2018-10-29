@@ -10,7 +10,7 @@ urlpatterns = [
         name='directory_home',),
 
     # http://localhost:8000/restapi/api/v1/marvel_heroes/1837
-    url(r'^api/v1/(?P<document_type>[a-z0-9_]*)/(?P<document_id>\d+)/$',
+    url(r'^api/v1/(?P<document_type>[a-z0-9_]*)/$',
         csrf_exempt(views.api_documents),
         name='api'),
 
