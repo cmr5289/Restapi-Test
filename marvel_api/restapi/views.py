@@ -72,8 +72,8 @@ def api_document_type(request, document_type, document_id):
     data = db[collection]
 
     if request.method == 'GET':
-        get_data = json.loads(request.body)
-        if get_data:
+        if request.body:
+            get_data = json.loads(request.body)
             get_data = get_data["fields"]
         else:
             get_data = 0
@@ -84,9 +84,9 @@ def api_document_type(request, document_type, document_id):
         post_data = post_data["fields"]
         return api_post(data, post_data)
 
-    if request.method == '\DELETE':
-        delete_ids = json.loads(request.body)
-        if delete_ids:
+    if request.method.lower() == 'delete':
+        if request.body:
+            delete_ids = json.loads(request.body)
             delete_ids = delete_ids["fields"]
         else:
             delete_ids = 0
@@ -117,8 +117,8 @@ def api_post(data, post_data):
 
 
 def api_delete(data, document_id, delete_ids):
+    results_json = []
     if delete_ids:
-        results_json = []
         for item in delete_ids:
             try:
                 results = data.delete_one(
@@ -130,10 +130,12 @@ def api_delete(data, document_id, delete_ids):
                 "Deletion count: " + str(results.deleted_count)
             )
     else:
-        results = data.deleteOne(
+        results = data.delete_one(
             {"id": document_id}
         )
-        results_json.append(results)
+        results_json.append(
+            "Deletion count: " + str(results.deleted_count)
+        )
 
     results_json = dumps(results_json)
     return JsonResponse(results_json, safe=False)

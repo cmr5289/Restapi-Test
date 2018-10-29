@@ -1,34 +1,45 @@
-from pymongo import MongoClient
+import requests
 
-client = MongoClient('mongodb://localhost:27017')
+url = 'http://localhost:8000/restapi/api/v1/marvel_heroes/1678'
+payload = {}
+headers = {}
+res = requests.get(url, data=payload, headers=headers)
+print("GET command")
+print(res.json)
+print(res.text)
 
-database = "marvel_restapi"
-collection = "marvel_heroes"
-db = client[database]
+res = requests.delete(url, data=payload, headers=headers)
+print("\DELETE command")
+print(res.json)
+print(res.text)
 
-print(db.list_collection_names())
-
-posts = db[collection]
-# post_data = {
-#     'id': '1678',
-#     'name': 'Spider-Man (Peter Parker)',
-#     'IDENTITY': 'Secret Identity',
-#     'ALIGN': 'Good Characters',
-#     'EYE': 'Hazel Eyes',
-#     'HAIR': 'Brown Hair',
-#     'SEX': 'Male Characters',
-#     'ALIVE': 'Living Characters',
-#     'FIRST APPEARANCE': 'Aug-62',
-#     'Year': '1962'
+# Cannot for the life of me figure out why this breaks, the
+# post command is working fine in both Postman and the Curl expression
+# I am pretty sure there is a python syntax error or something
+# however I am already spending way too much time on this simple test.
+# headers = {"Content-Type": "application/json"}
+# url = 'http://localhost:8000/restapi/api/v1/marvel_heroes/'
+# payload = {
+#     "fields": [{
+#         "id": "1678",
+#         "name": "Spider-Man (Peter Parker)",
+#         "IDENTITY": "Secret Identity",
+#         "ALIGN": "Good Characters", "EYE": "Hazel Eyes",
+#         "HAIR": "Brown Hair", "SEX": "Male Characters",
+#         "ALIVE": "Living Characters",
+#         "FIRST APPEARANCE": "Aug-62",
+#         "Year": "1962"
+#     }]
 # }
+# res = requests.post(url, data=payload, headers=headers)
+# print("POST command")
+# print(res.json)
+# print(res.text)
 
-# result = posts.insert_one(post_data)
-# print('One post: {0}'.format(result.inserted_id))
-
-# bills_post = posts.find({'ALIVE': 'Living Characters'})
-# print(bills_post)
-
-# for items in bills_post:
-#     print(items)
-
-
+url = 'http://localhost:8000/restapi/api/v1/marvel_heroes/1678'
+payload = {}
+headers = {}
+res = requests.get(url, data=payload, headers=headers)
+print("GET command again")
+print(res.json)
+print(res.text)
